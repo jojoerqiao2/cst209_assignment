@@ -2,6 +2,7 @@
 #include "../include/utility.hxx"
 
 class Complex {
+// Must specify the access specifier for the members in the exam.
 private:
     double real{ 0.0 }, imag{ 0.0 };
 public:

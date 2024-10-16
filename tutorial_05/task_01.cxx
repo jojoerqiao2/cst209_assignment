@@ -6,6 +6,7 @@
 #include "../include/utility.hxx"
 
 class NumDays {
+// Must specify the access specifier for the members in the exam.
 private:
     std::uint32_t hours;
 

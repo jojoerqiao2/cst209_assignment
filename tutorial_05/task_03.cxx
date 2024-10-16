@@ -3,6 +3,7 @@
 #include "../include/utility.hxx"
 
 class Circle {
+// Must specify the access specifier for the members in the exam.
 private:
     double radius{ 0 }, area{ 0 }, diameter{ 0 }, circumference{ 0 };
     static constexpr double pi = 3.14159;
