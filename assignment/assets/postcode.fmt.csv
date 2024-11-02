@@ -1,0 +1,2 @@
+"postcode", "country", "location"
+"${integer}", "${string}", "${string}"
