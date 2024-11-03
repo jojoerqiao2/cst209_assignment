@@ -2,3 +2,5 @@ bin/
 .vscode/
 .cache/
 **/.out
+**/*.o
+compile_commands.json

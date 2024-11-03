@@ -1,1 +1,5 @@
-
+"postcode", "country", "location"
+"100000", "CN", "Beijing"
+"Wrong_Record", "CN", "Wrong_Record_Type_Mismatch"
+"1145141919810114514191981011451419198101145141919810", "CN", "Wrong_Record_Integer_Overflow"
+"114514", "CN", "Too many fields", "Too_Many_Fields"

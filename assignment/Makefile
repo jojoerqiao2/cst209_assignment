@@ -1,11 +1,17 @@
+CXX := c++
 CXXSTD := gnu++23
-CXXFLAGS += -std=${CXXSTD} -O2
+CXXFLAGS += -std=${CXXSTD} -O2 -Wall -Wextra -Weffc++ -Werror
 
-all:
-	echo "TODO...";
+INCLUDE_DIR := include
+SRC_DIR := src
 
-postcode.fmt: assets/postcode.fmt.csv
-	
+OBJECTS := $(patsubst %.cxx, %.o, $(wildcard ${SRC_DIR}/*.cxx))
+
+all: ${OBJECTS}
+	${CXX} ${CXXFLAGS} -I./${INCLUDE_DIR} ${OBJECTS} -o a.out
+
+%.o: %.cxx
+	${CXX} ${CXXFLAGS} -I./${INCLUDE_DIR} -c $< -o $@
 
 clean:
-	echo "TODO...";
+	rm -f ${OBJECTS} a.out

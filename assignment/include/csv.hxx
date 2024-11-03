@@ -13,76 +13,137 @@
 #include <cstdint>
 #include <typeindex>
 
-#include "config.hxx"
+#include <stdexcept>
+
+#include "utility.hxx"
 
 namespace csv
 {
 
-/*!
- * The `Parser` requires a more restricted and modified format of csv:
- * 1. The first row is assumed as the titles of all of fields;
- * 2. All fields must be quoted (that is, enclosed within double-quote characters);
- * 3. Each field must be singled-lined;
- * 4. Double-quote is not allow in each field;
- * 5. The leading and trailing whitespaces of each field are stripped;
- */
-class Parser
+class Type
 {
 public:
+    using invalid = ::std::monostate;
     using string = ::std::string;
     using integer = ::std::int64_t;
-    using valid_data_type = std::variant<string, integer>;
+    using parsed_data_type = ::std::variant<invalid, string, integer>;
+protected:
+    static const std::unordered_map<std::string_view, std::type_index> data_type_mapping;
+};
 
+class Error
+{
+public:
+    virtual auto what() const noexcept -> const char* = 0;
+    virtual ~Error() = default;
+};
+
+class InvalidFormat
+    : public std::logic_error
+    , public Error
+{
+protected:
+    static constexpr std::string_view base_message = "Invalid CSV format";
+public:
+    InvalidFormat(std::string_view message = {}) noexcept;
+    virtual auto what() const noexcept -> const char* override;
+    virtual ~InvalidFormat() = default;
+};
+
+class UnsupportedType
+    : public std::out_of_range
+    , public Error
+{
+protected:
+    static constexpr std::string_view base_message = "Unsupported data type";
+public:
+    UnsupportedType(std::string_view message = {}) noexcept;
+    virtual auto what() const noexcept -> const char* override;
+    virtual ~UnsupportedType() = default;
+};
+
+class FieldMismatch
+    : public std::out_of_range
+    , public Error
+{
+protected:
+    static constexpr std::string_view base_message = "Field mismatch";
+public:
+    FieldMismatch(std::string_view message = {}) noexcept;
+    virtual auto what() const noexcept -> const char* override;
+    virtual ~FieldMismatch() = default;
+};
+
+class ParsingError
+    : public std::runtime_error
+    , public Error
+{
+protected:
+    static constexpr std::string_view base_message = "Parsing error";
+public:
+    ParsingError(std::string_view message = {}) noexcept;
+    virtual auto what() const noexcept -> const char* override;
+    virtual ~ParsingError() = default;
+};
+
+class Parser
+    : public Type
+{
 private:
-    using namespace std::literals;
-    // The valid data types for the CSV parser. In this project, we only support integer and string.
-    static inline const std::unordered_map<std::string_view, std::type_index> data_type_mapping = {
-        { "string"sv, std::type_index(typeid(string)) },
-        { "integer"sv, std::type_index(typeid(integer)) },
-    };
-
+    using record_type = std::vector<std::string_view>;
     // Metadata of each csv-sheet
-    std::vector<std::string> m_field_names;
+    std::vector<std::string> m_title_names;
     std::vector<std::type_index> m_field_types;
 
-    // The `Parser` does not own the data of the csv-sheet.
-    std::vector<std::vector<std::string_view>> m_field_str_refs;
+    // Records of each csv-sheet
+    std::vector<record_type> m_records;
 public:
-    Parser() = default;
-    /*!
-     * @param meta The metadata of the csv-sheet.
-     * Example of metadata file:
-     * ```
-     * "postcode", "country", "location"
-     * "${integer}", "${string}", "${string}"
-     * ```
-     * This will be parsed as:
-     * ```
-     * ---------------------------
-     * |postcode|country|location|
-     * |integer |string | string |
-     * ---------------------------
-     * ```
-     * @param data_str_refs The data of the csv-sheet.
-     * Example of data file:
-     * ```
-     * "postcode", "country", "location"
-     * "1000", "Australia", "Sydney"
-     * ```
-     * The first line must be the field names and same as the metadata.
-     * If the field names are not the same as the metadata, the program will throw an exception.
-     * The rest of lines are records of the csv-sheet.
-     * The type of each field is expected to be the same as the metadata.
-     * However, the program will not check the type of each field at this moment.
-     */
-    Parser(std::string_view meta, std::vector<std::string_view> data_str_refs);
+    Parser(
+        std::string_view meta, 
+        std::vector<std::string_view> data_refs = {}
+    ) THROW_EXCEPTION(csv::InvalidFormat, csv::UnsupportedType, csv::FieldMismatch);
 
-    auto get_field_names() const -> std::span<const std::string>
-    { return std::span{this->m_field_names}; }
+    void 
+    append_data(
+        std::string_view data_ref
+    ) THROW_EXCEPTION(csv::FieldMismatch);
 
-    // Get the data of the csv-sheet. If the data type is not the same as the metadata, the program will throw an exception.
-    auto at(std::size_t row, std::size_t col) const -> valid_data_type;
-    auto at(std::size_t row, std::string_view field_name) const -> valid_data_type;
+    void clear_records() noexcept
+    { this->m_records.clear(); }
+
+    auto field_names() const noexcept -> std::span<const std::string>
+    { return std::span{this->m_title_names}; }
+
+    auto record_count() const noexcept -> std::size_t
+    { return this->m_records.size(); }
+
+    auto field_count() const noexcept -> std::size_t
+    { return this->m_title_names.size(); }
+
+    auto empty() const noexcept -> bool
+    { return this->m_records.empty(); }
+
+    auto 
+    operator[](
+        std::size_t row, 
+        std::size_t col
+    ) const THROW_EXCEPTION(std::out_of_range)
+    -> std::string
+    { return std::string{ this->m_records.at(row).at(col) }; }
+
+    auto 
+    parse_record_at(
+        std::size_t row, 
+        std::size_t col
+    ) const THROW_EXCEPTION(csv::ParsingError, std::logic_error, std::out_of_range)
+    -> Type::parsed_data_type;
+
+    auto 
+    parse_record_at(
+        std::size_t row, 
+        std::string_view field_name
+    ) const THROW_EXCEPTION(csv::FieldMismatch, csv::ParsingError, std::logic_error, std::out_of_range)
+    -> Type::parsed_data_type;
 };
 
 }
