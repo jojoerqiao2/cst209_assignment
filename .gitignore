@@ -1,0 +1,13 @@
+**/*.exe
+**/*.dll
+**/*.o
+**/*.obj
+**/*.ilk
+**/*.pdb
+**/*.out
+**/*.so
+**/*.a
+**/*.lib
+**/*.dylib
+.vscode/
+.cache/
