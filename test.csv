@@ -1,0 +1,4 @@
+"postal code", "country", "location"
+"100000", "CN", "Beijing"
+"114514", "JP", "One more field", "This is an error"
+"1919810", "JP", "Missing quote
