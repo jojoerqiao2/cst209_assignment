@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <system_error>
-#include <bit>
 
 namespace io
 {
@@ -22,7 +21,7 @@ FileBuffer::FileBuffer(fs::path path)
     const std::size_t file_size = file.tellg();
     file.seekg(0, std::ios_base::beg);
 
-    m_buffer.resize(std::bit_ceil(file_size));
+    m_buffer.resize(file_size);
     file.read(m_buffer.data(), file_size);
 }
 

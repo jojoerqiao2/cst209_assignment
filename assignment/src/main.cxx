@@ -3,7 +3,6 @@
 
 #include <exception>
 #include <iostream>
-#include <format>
 #include <variant>
 
 union JustForTest {
@@ -32,11 +31,7 @@ int main()
 
     for (auto const& field_name : parser.field_names()) {
         static bool is_first = true;
-        std::cout << std::format(
-            "{}\"{}\"",
-            is_first ? "" : ", ",
-            field_name
-        );
+        std::cout << (is_first ? "" : ", ") << '\"' << field_name << '\"';
         is_first = false;
     }
     std::cout << std::endl;
@@ -51,10 +46,9 @@ int main()
             } catch (std::exception const& e) {
                 std::cerr << e.what() << std::endl;
             }
-            std::cout << std::format(
-                "{}\"{}\"",
-                is_first ? "" : ", ",
-                std::visit(
+            std::cout << (is_first ? "" : ", ")
+                << '\"'
+                << std::visit(
                     [](auto&& arg) -> std::string {
                         using T = std::decay_t<decltype(arg)>;
                         if constexpr (std::is_same_v<T, csv::Parser::string>) {
@@ -66,10 +60,9 @@ int main()
                         } else {
                             static_assert(false, "Impossible to reach here!");
                         }
-                    },
-                    value
+                    }, value
                 )
-            );
+                << '\"';
             is_first = false;
         }
         std::cout << std::endl;

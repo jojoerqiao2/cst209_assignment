@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <string_view>
-#include <span>
+#include <array>
 #include <variant>
 
 #include <cstdint>
@@ -99,7 +99,7 @@ private:
     std::vector<record_type> m_records;
 public:
     Parser(
-        std::string_view meta, 
+        std::string_view meta_ref, 
         std::vector<std::string_view> data_refs = {}
     ) THROW_EXCEPTION(csv::InvalidFormat, csv::UnsupportedType, csv::FieldMismatch);
 
@@ -111,8 +111,8 @@ public:
     void clear_records() noexcept
     { this->m_records.clear(); }
 
-    auto field_names() const noexcept -> std::span<const std::string>
-    { return std::span{this->m_title_names}; }
+    auto field_names() const noexcept -> decltype(auto)
+    { return (this->m_title_names); }
 
     auto record_count() const noexcept -> std::size_t
     { return this->m_records.size(); }
@@ -125,11 +125,10 @@ public:
 
     auto 
     operator[](
-        std::size_t row, 
-        std::size_t col
+        std::array<std::size_t, 2> const& index
     ) const THROW_EXCEPTION(std::out_of_range)
     -> std::string
-    { return std::string{ this->m_records.at(row).at(col) }; }
+    { return std::string{ this->m_records.at(index[0]).at(index[1]) }; }
 
     auto 
     parse_record_at(

@@ -1,5 +1,5 @@
 CXX := c++
-CXXSTD := gnu++23
+CXXSTD := gnu++17
 CXXFLAGS += -std=${CXXSTD} -O2 -Wall -Wextra -Weffc++ -Werror
 
 INCLUDE_DIR := include

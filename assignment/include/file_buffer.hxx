@@ -5,7 +5,7 @@
 
 #include <filesystem>
 #include <vector>
-#include <span>
+#include <string_view>
 
 namespace io
 {
@@ -20,8 +20,8 @@ private:
 public:
     FileBuffer(fs::path path);
 
-    auto buffer() const noexcept -> std::span<const char>
-    { return this->m_buffer; }
+    auto buffer() const noexcept -> std::string_view
+    { return std::string_view(this->m_buffer.data(), this->m_buffer.size()); }
 #undef fs
 };
 
