@@ -139,7 +139,76 @@ std::string const& FileBuffer::buffer_ref() const
 std::string&& FileBuffer::buffer_release()
 { return std::move(m_buffer); }
 
+} // namespace file
+
+namespace mail
+{
+
+// Corresponding to the CSV file format
+class PostalAddress
+{
+protected:
+    std::string m_country
+    std::string m_postal_code;
+    std::string m_location;
+public:
+    // Something else...
+    // Should be done by `@Owen`
+};
+
+// Other information
+class UserInfo
+{
+protected:
+    std::string m_name;
+    std::string m_email;
+    std::string m_phone_number;
+public:
+    // Something else...
+    // Should be done by `@Joe`
+};
+
+// Pure storage struct, no need for any method
+struct Dimension
+{
+    long double length;
+    long double width;
+    long double height;
+};
+
+class PackageInfo
+{
+protected:
+    Dimension m_dimension;
+    long double m_weight;
+public:
+    // Something else...
+    // Should be done by `@Joe`
+};
+
+class ShipmentInfo
+{
+protected:
+    PostalAddress m_origin;
+    PostalAddress m_destination;
+    PackageInfo m_package;
+    UserInfo m_sender;
+    std::string m_shipment_id;
+    std::string m_shipment_date;
+    std::string m_service_type;
+    long double m_cost;
+public:
+    // Something else...
+    // Should be done by `@Joe`
+};
+
+void interface()
+{
+    // Something else...
+    // Should be done by `@Joe`
 }
+
+} // namespace mail
 
 #include <iostream>
 
