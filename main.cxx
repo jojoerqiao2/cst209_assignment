@@ -148,12 +148,45 @@ namespace mail
 class PostalAddress
 {
 protected:
-    std::string m_country
+    std::string m_country;
     std::string m_postal_code;
     std::string m_location;
 public:
-    // Something else...
-    // Should be done by `@Owen`
+    PostalAddress() = default;
+    PostalAddress(std::string country, std::string postal_code, std::string location) {
+        m_country = country;
+        m_postal_code = postal_code;
+        m_location = location;
+    }
+
+    std::string getCountry() const {
+        return m_country;
+    }
+
+    void setCountry(const std::string& country) {
+        m_country = country;
+    }
+
+    std::string getPostalCode() const {
+        return m_postal_code;
+    }
+
+    void setPostalCode(const std::string& postal_code) {
+        m_postal_code = postal_code;
+    }
+
+    std::string getLocation() const {
+        return m_location;
+    }
+
+    void setLocation(const std::string& location) {
+        m_location = location;
+    }
+    void display() {
+        std::cout << "Country: " << m_country << std::endl;
+        std::cout << "Postal code: " << m_postal_code << std::endl;
+        std::cout << "location: " << m_location << std::endl;
+    }
 };
 
 // Other information
@@ -164,9 +197,43 @@ protected:
     std::string m_email;
     std::string m_phone_number;
 public:
-    // Something else...
-    // Should be done by `@Joe`
+    UserInfo() = default;
+    UserInfo(std::string name, std::string email, std::string phone_number) {
+        std::string m_name = name;
+        std::string m_email = email;
+        std::string m_phone_number = phone_number;
+    }
+    std::string getName() const {
+        return m_name;
+    }
+
+    void setName(const std::string& name) {
+        m_name = name;
+    }
+
+    std::string getEmail() const {
+        return m_email;
+    }
+
+    void set(const std::string& email) {
+        m_email = email;
+    }
+
+    std::string getPhoneNumber() const {
+        return m_phone_number;
+    }
+
+    void setPhoneNumber(const std::string& phone_number) {
+        m_phone_number = phone_number;
+    }
+    void display() {
+        std::cout << "Name: " << m_name << std::endl;
+        std::cout << "Email: " << m_email << std::endl;
+        std::cout << "Phone number: " << m_phone_number << std::endl;
+    }
+    
 };
+
 
 // Pure storage struct, no need for any method
 struct Dimension
@@ -182,13 +249,62 @@ protected:
     Dimension m_dimension;
     long double m_weight;
 public:
-    // Something else...
-    // Should be done by `@Joe`
+    PackageInfo() = default;
+    PackageInfo(long double length, long double width, long double height, long double weight) {
+        m_dimension.length = length;
+        m_dimension.width = width;
+        m_dimension.height = height;
+        m_weight = weight;
+    }
+
+    long double getLength() const {
+        return m_dimension.length;
+    }
+
+    void setLength(long double length) {
+        m_dimension.length = length;
+    }
+
+    long double getWidth() const {
+        return m_dimension.width;
+    }
+
+    
+    void setWidth(long double width) {
+        m_dimension.width = width;
+    }
+
+    
+    long double getHeight() const {
+        return m_dimension.height;
+    }
+
+    
+    void setHeight(long double height) {
+        m_dimension.height = height;
+    }
+
+    
+    long double getWeight() const {
+        return m_weight;
+    }
+
+    
+    void setWeight(long double weight) {
+        m_weight = weight;
+    }
+    void display() {
+        std::cout << "Weight:" << m_weight << std::endl;
+        std::cout << "length: " << m_dimension.length << std::endl;
+        std::cout << "Width: " << m_dimension.width << std::endl;
+        std::cout << "Height " << m_dimension.height << std::endl;
+    }
 };
 
 class ShipmentInfo
 {
 protected:
+    UserInfo m_user;
     PostalAddress m_origin;
     PostalAddress m_destination;
     PackageInfo m_package;
@@ -198,14 +314,184 @@ protected:
     std::string m_service_type;
     long double m_cost;
 public:
-    // Something else...
-    // Should be done by `@Joe`
+    ShipmentInfo() = default;
+    ShipmentInfo(const PostalAddress& origin, const PostalAddress& destination,
+        const PackageInfo& package, const UserInfo& user,const UserInfo& sender,
+        const std::string& shipment_id, const std::string& shipment_date,
+        const std::string& service_type)
+    {
+        m_origin = origin;
+        m_destination = destination;
+        m_package = package;
+        m_user = user;
+        m_sender = sender;
+        m_shipment_id = shipment_id;
+        m_shipment_date = shipment_date;
+        m_service_type = service_type; 
+       
+    }
+
+    // Getters
+    PostalAddress getOrigin() const { return m_origin; }
+    PostalAddress getDestination() const { return m_destination; }
+    PackageInfo getPackage() const { return m_package; }
+    UserInfo getUser() const { return m_user; }
+    UserInfo getSender() const { return m_sender; }
+    std::string getShipmentId() const { return m_shipment_id; }
+    std::string getShipmentDate() const { return m_shipment_date; }
+    std::string getServiceType() const { return m_service_type; }
+    long double getCost() const { return m_cost; }
+
+    // Setters
+    void setOrigin(const PostalAddress& origin) { 
+        m_origin = origin;
+    }
+    void setDestination(const PostalAddress& destination) {
+        m_destination = destination;
+    }
+    void setPackage(const PackageInfo& package) { 
+        m_package = package; 
+    }
+    void setSender(const UserInfo& user) {
+        m_sender = user;
+    }
+    void setSender(const UserInfo& sender) {
+        m_sender = sender; 
+    }
+    void setShipmentId(const std::string& shipment_id) {
+        m_shipment_id = shipment_id;
+    }
+    void setShipmentDate(const std::string& shipment_date) {
+        m_shipment_date = shipment_date; 
+    }
+    void setServiceType(const std::string& service_type) { 
+        m_service_type = service_type; 
+    }
+    void setCost(long double cost) { 
+        m_cost = cost; 
+    }
+    void display() {
+        std::cout << "Account" << std::endl;
+        m_user.display();
+        std::cout << std::endl;
+        std::cout << "Origin" << std::endl;
+        m_origin.display();
+        std::cout << std::endl;
+        std::cout << "Destination" << std::endl;
+        m_destination.display();
+        std::cout << std::endl;
+        std::cout << "Sender information" << std::endl;
+        m_sender.display();
+        std::cout << std::endl;
+        std::cout << "Shipment information" << std::endl;
+        m_package.display();
+        std::cout << "Shipmentid: " << m_shipment_id << std::endl;
+        std::cout << "shipmentdate: " << m_shipment_date << std::endl;
+        std::cout << std::endl;
+        std::cout << " service type: " << m_service_type << std::endl;
+        std::cout << std::endl;
+        std::cout << "Cost: " << m_cost << std::endl;
+    }
 };
+
 
 void interface()
 {
-    // Something else...
-    // Should be done by `@Joe`
+    std::cout << "********************* Ship now *********************" << std::endl;
+    std::cout << "*******1.Please enter your account******************" << std::endl;
+    std::cout << "****** 2.Enter your departure and destination ******" << std::endl;
+    std::cout << "****** 3.Enter your service type *******************" << std::endl;
+    std::cout << "****** 4.Describe your shipment ********************" << std::endl;
+    std::cout << "****** 5.Get shipping prices ***********************" << std::endl;
+    std::cout << "****** 6.Continue to book online *******************" << std::endl;
+    
+    
+    std::string username, useremail, usernumber, ocountry, opostalcode, olocation,
+        sendername, senderemail, sendernumber, dcountry, dpostalcode, dlocation,
+        shipmentid, shipmentdate, servicetype;
+    long double length, width, height, weight, cost;
+    char  confirm;
+    int i = 1;
+    while (i) {
+        std::cout << "Account" << std::endl;
+        std::cout << "please enter your account:( name | email | phone number ) " << std::endl;
+        std::cin >> username;
+        std::cin >> useremail;
+        std::cin >> usernumber;
+        UserInfo user(username, useremail, usernumber);
+        std::cout << "Login successful!" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Origin and Destination" << std::endl;
+        std::cout << "Please enter your origin: ( country | postal code | location ) ";
+        std::cin >> ocountry;
+        std::cin >> opostalcode;
+        std::cin >> olocation;
+        PostalAddress origin(ocountry, opostalcode, olocation);
+        std::cout << "Please enter your destination: ( country | postal code | location ) ";
+        std::cin >> dcountry;
+        std::cin >> dpostalcode;
+        std::cin >> dlocation;
+        std::cout << "Please enter the sender information: ( name | email | phone number )" << std::endl;
+        std::cin >> sendername;
+        std::cin >> senderemail;
+        std::cin >> sendernumber;
+        UserInfo sender(sendername, senderemail, sendernumber);
+        PostalAddress destination(dcountry, dpostalcode, dlocation);
+        std::cout << std::endl;
+
+        std::cout << "ServiceType" << std::endl;
+        std::cout << "Please enter your serviceType: ( Sea transport | Air transport | Land transport) ";
+        std::cin >> servicetype;
+        std::cout << std::endl;
+
+        std::cout << "Package Description" << std::endl;
+        std::cout << "Please enter your shipmentid" << std::endl;
+        std::cin >> shipmentid;
+        std::cout << "Please enter your shipmentdate" << std::endl;
+        std::cin >> shipmentdate;
+        std::cout << "Please enter your weight(kg): " << std::endl;
+        std::cin >> weight;
+        std::cout << "Please enter your length(cm): " << std::endl;
+        std::cin >> length;
+        std::cout << "Please enter your width(cm): " << std::endl;
+        std::cin >> width;
+        std::cout << "Please enter your height(cm): " << std::endl;
+        std::cin >> height;
+        PackageInfo package(length, width, height, weight);
+        ShipmentInfo u1(origin, destination, package, user, sender, shipmentid, shipmentdate, servicetype);
+        std::cout << std::endl;
+        
+        //need calculate Fees
+
+        u1.setCost(cost);
+        std::cout << "The shipping fee is: " << u1.getCost() << std::endl;
+        std::cout << std::endl;
+       
+        std::cout << "Details are as follows" << std::endl;
+        u1.display();
+        //Confirm whether to pay
+        std::cout << "Do you want to confirm the shipment? (y/n): ";
+        std::cin >> confirm;
+        if (confirm == 'y' || confirm == 'Y') {
+            std::cout << "Shipment confirmed. Please proceed to payment." << std::endl;
+            std::cout << "Payment successful. Thank you!" << std::endl;
+        }
+        else {
+            std::cout << "Shipment not confirmed." << std::endl;
+        }
+
+        //Use again or exit
+        std::cout << "Do you want to continue booking online? (y/n): " << std::endl;
+        std::cin >> confirm;
+        if (confirm == 'n' || confirm == 'N') {
+            std::cout << "Thank you for your use !" << std::endl;
+            i--;
+
+        }
+
+    }
+
 }
 
 } // namespace mail
