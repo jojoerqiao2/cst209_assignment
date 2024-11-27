@@ -236,13 +236,13 @@ const map<RouteToDistance::RouteType, RouteToDistance::DistanceType> RouteToDist
 class Centimeter
 {
   public:
-    typedef double ValueType;
+    typedef long double ValueType;
 
   private:
     ValueType value;
 
   public:
-    Centimeter(ValueType value) : value(value > 0 ? value : -1)
+    Centimeter(ValueType value = 0) : value(value >= 0 ? value : -1)
     {
         if (this->value == -1)
             throw runtime_error("Invalid centimeter value");
@@ -263,6 +263,7 @@ class Freight
     virtual ~Freight() = 0;
 
     virtual double volumetric_weight(Centimeter l, Centimeter w, Centimeter h, unsigned int packages) const = 0;
+    virtual operator string() const = 0;
 };
 
 Freight::~Freight() = default;
@@ -276,6 +277,10 @@ class AirFreight : public Freight
     {
         return l * w * h / 6000.0 * packages;
     }
+    virtual operator string() const override
+    {
+        return "Air transport";
+    }
 } const air_freight;
 
 class OceanFreight : public Freight
@@ -287,6 +292,10 @@ class OceanFreight : public Freight
     {
         return l * w * h / 1000.0 * packages;
     }
+    virtual operator string() const override
+    {
+        return "Ocean transport";
+    }
 } const ocean_freight;
 
 class RailFreight : public Freight
@@ -297,6 +306,10 @@ class RailFreight : public Freight
     virtual double volumetric_weight(Centimeter l, Centimeter w, Centimeter h, unsigned int packages) const override
     {
         return l * w * h / 3000.0 * packages;
+    }
+    virtual operator string() const override
+    {
+        return "Rail transport";
     }
 } const rail_freight;
 
@@ -430,9 +443,9 @@ class UserInfo
 // Pure storage struct, no need for any method
 struct Dimension
 {
-    long double length;
-    long double width;
-    long double height;
+    Centimeter length;
+    Centimeter width;
+    Centimeter height;
 };
 
 class ShipmentMode
@@ -521,364 +534,376 @@ class ShipmentMode
             if (m_dimension.height)
                 std::cout << "Suggested height: " << m_dimension.height;
         }
-    };
-
-    class PackageInfo
-    {
-      protected:
-        Dimension m_dimension;
-        long double m_weight;
-        long double m_quantity;
-
-      public:
-        PackageInfo() = default;
-        PackageInfo(long double l, long double w, long double h, long double wt, long double q)
-        {
-            setLength(l);
-            setWidth(w);
-            setHeight(h);
-            setWeight(wt);
-            setQuantity(q);
-        }
-
-        long double getLength() const
-        {
-            return m_dimension.length;
-        }
-
-        void setLength(long double l)
-        {
-            if (l >= 1 && l <= 120)
-                m_dimension.length = l;
-            else
-                std::cout << "Error! Please enter a length up to 120 cm" << std::endl;
-        }
-
-        long double getWidth() const
-        {
-            return m_dimension.width;
-        }
-
-        void setWidth(long double w)
-        {
-            if (w >= 1 && w <= 80)
-                m_dimension.width = w;
-            else
-                std::cout << "Error! Please enter a width up to 80 cm" << std::endl;
-        }
-
-        long double getHeight() const
-        {
-            return m_dimension.height;
-        }
-
-        void setHeight(long double h)
-        {
-            if (h >= 1 && h <= 80)
-                m_dimension.height = h;
-            else
-                std::cout << "Error! Please enter a height up to 80 cm" << std::endl;
-        }
-
-        long double getWeight() const
-        {
-            return m_weight;
-        }
-
-        void setWeight(long double wt)
-        {
-            if (wt >= 1 && wt <= 2500)
-                m_weight = wt;
-            else
-                std::cout << "Error! Please enter a weight up to 2500 kg" << std::endl;
-        }
-
-        long double getQuantity() const
-        {
-            return m_quantity;
-        }
-
-        void setQuantity(long double q)
-        {
-            if (q >= 1 && q <= 100)
-                m_quantity = q;
-            else
-                std::cout << "Error! Please enter a quantity up to 100 items" << std::endl;
-        }
-        void display()
-        {
-            std::cout << "Weight:" << m_weight << std::endl;
-            std::cout << "length: " << m_dimension.length << std::endl;
-            std::cout << "Width: " << m_dimension.width << std::endl;
-            std::cout << "Height " << m_dimension.height << std::endl;
-            std::cout << "Quantity " << m_quantity << std::endl;
-        }
-    };
-
-    class ShipmentInfo
-    {
-      protected:
-        UserInfo m_user;
-        PostalAddress m_origin;
-        PostalAddress m_destination;
-        PackageInfo m_package;
-        UserInfo m_consignee;
-        std::string m_shipment_id;
-        std::string m_shipment_date;
-        std::string m_service_type;
-        long double m_cost;
-
-      public:
-        ShipmentInfo() = default;
-        ShipmentInfo(const PostalAddress &origin, const PostalAddress &destination, const PackageInfo &package,
-                     const UserInfo &user, const UserInfo &consignee, const std::string &shipment_id,
-                     const std::string &shipment_date, const std::string &service_type)
-        {
-            m_origin = origin;
-            m_destination = destination;
-            m_package = package;
-            m_user = user;
-            m_consignee = consignee;
-            m_shipment_id = shipment_id;
-            m_shipment_date = shipment_date;
-            m_service_type = service_type;
-        }
-
-        // Getters
-        PostalAddress getOrigin() const
-        {
-            return m_origin;
-        }
-        PostalAddress getDestination() const
-        {
-            return m_destination;
-        }
-        PackageInfo getPackage() const
-        {
-            return m_package;
-        }
-        UserInfo getUser() const
-        {
-            return m_user;
-        }
-        UserInfo getconsignee() const
-        {
-            return m_consignee;
-        }
-        string getShipmentId() const
-        {
-            return m_shipment_id;
-        }
-        string getShipmentDate() const
-        {
-            return m_shipment_date;
-        }
-        string getServiceType() const
-        {
-            return m_service_type;
-        }
-        long double getCost() const
-        {
-            return m_cost;
-        }
-
-        // Setters
-        void setOrigin(const PostalAddress &o)
-        {
-            m_origin = o;
-        }
-        void setDestination(const PostalAddress &d)
-        {
-            m_destination = d;
-        }
-        void setPackage(const PackageInfo &p)
-        {
-            m_package = p;
-        }
-        void setconsignee(const UserInfo &s)
-        {
-            m_consignee = s;
-        }
-        void setShipmentId(const string &id)
-        {
-            m_shipment_id = id;
-        }
-        void setShipmentDate(const string &date)
-        {
-            m_shipment_date = date;
-        }
-        void setServiceType(const string &st)
-        {
-            m_service_type = st;
-        }
-        void setCost(long double c)
-        {
-            m_cost = c;
-        }
-        void display()
-        {
-            std::cout << "Account" << std::endl;
-            m_user.display();
-            std::cout << std::endl;
-            std::cout << "Origin" << std::endl;
-            m_origin.display();
-            std::cout << std::endl;
-            std::cout << "Destination" << std::endl;
-            m_destination.display();
-            std::cout << std::endl;
-            std::cout << "consignee information" << std::endl;
-            m_consignee.display();
-            std::cout << std::endl;
-            std::cout << "Shipment information" << std::endl;
-            m_package.display();
-            std::cout << "Shipmentid: " << m_shipment_id << std::endl;
-            std::cout << "shipmentdate: " << m_shipment_date << std::endl;
-            std::cout << std::endl;
-            std::cout << " service type: " << m_service_type << std::endl;
-            std::cout << std::endl;
-            std::cout << "Cost: " << m_cost << std::endl;
-        }
-    };
-
-    void interface()
-    {
-        std::cout << "********************* Ship now *********************" << std::endl;
-        std::cout << "*******1.Please enter your account******************" << std::endl;
-        std::cout << "****** 2.Enter your departure and destination ******" << std::endl;
-        std::cout << "****** 3.Enter your service type *******************" << std::endl;
-        std::cout << "****** 4.Describe your shipment ********************" << std::endl;
-        std::cout << "****** 5.Get shipping prices ***********************" << std::endl;
-
-        std::string usertype, username, useremail, usernumber, ocountry, opostalcode, olocation, consigneename,
-            consigneeemail, consigneenumber, dcountry, dpostalcode, dlocation, shipmentid, shipmentdate, servicetype;
-
-        char confirm;
-        int userChoice;
-        while (true)
-        {
-            std::cout << "Account" << std::endl;
-            std::cout << "I am shipping as a.... ( business | private person )" << std::endl;
-            std::cin >> usertype;
-            std::cout << "please enter your account:( name | email | phone number ) " << std::endl;
-            std::cin >> username;
-            std::cin >> useremail;
-            std::cin >> usernumber;
-            UserInfo user(username, useremail, usernumber);
-            std::cout << "Login successful!" << std::endl;
-            std::cout << std::endl;
-
-            std::cout << "Origin and Destination" << std::endl;
-            std::cout << "Please enter your origin: ( country | postal code | location ) ";
-            std::cin >> ocountry;
-            std::cin >> opostalcode;
-            std::cin >> olocation;
-
-            PostalAddress origin(ocountry, opostalcode, olocation);
-            std::cout << "Please enter your destination: ( country | postal code | location ) ";
-            std::cin >> dcountry;
-            std::cin >> dpostalcode;
-            std::cin >> dlocation;
-            std::cout << "Please enter the consignee information: ( name | email | phone number )" << std::endl;
-            std::cin >> consigneename;
-            std::cin >> consigneeemail;
-            std::cin >> consigneenumber;
-            UserInfo consignee(consigneename, consigneeemail, consigneenumber);
-            PostalAddress destination(dcountry, dpostalcode, dlocation);
-            std::cout << std::endl;
-
-            std::cout << "ServiceType" << std::endl;
-            std::cout << "Please enter a number to select your shipping type: ( Sea transport(1) | Air transport(2) | "
-                         "Rail Freight(3)) ";
-
-            // Detect user input and convert numbers into text information
-            while (true)
-            {
-                cin >> type;
-                switch (type)
-                {
-                case 1:
-                    servicetype = "Sea transport";
-                    break;
-                case 2:
-                    servicetype = "Air transport";
-                    break;
-                case 3:
-                    servicetype = "Rail transport";
-                    break;
-                default:
-                    cout << "Invalid input, please re-enter: ";
-                    continue;
-                }
-                break;
-            }
-
-            ShipmentMode shipment;
-
-            shipment.selectShipmentMode();
-            std::cout << "Enter your choice (1, 2, or 3): ";
-            std::cin >> userChoice;
-            shipment = ShipmentMode(userType, userChoice);
-
-            shipment.setShipmentMode();
-            shipment.display();
-
-            long double length, width, height, weight, cost, quantity;
-
-            std::cout << "Package Description" << std::endl;
-            std::cout << "Please enter your shipmentid" << std::endl;
-            std::cin >> shipmentid;
-            std::cout << "Please enter your shipmentdate" << std::endl;
-            std::cin >> shipmentdate;
-            std::cout << "Please enter your weight(kg): " << std::endl;
-            std::cin >> weight;
-            std::cout << "Please enter your length(cm): " << std::endl;
-            std::cin >> length;
-            std::cout << "Please enter your width(cm): " << std::endl;
-            std::cin >> width;
-            std::cout << "Please enter your height(cm): " << std::endl;
-            std::cin >> height;
-            std::cout << "Please enter your quantity: " << std::endl;
-            std::cin >> quantity;
-            PackageInfo package(length, width, height, weight, quantity);
-
-            std::string origin, destination, package, user, consignee;
-
-            ShipmentInfo info(origin, destination, package, user, consignee, shipmentid, shipmentdate, servicetype);
-            std::cout << std::endl;
-
-            // need calculate Fees
-
-            cost = 0.0;
-            u1.setCost(cost);
-            std::cout << "The shipping fee is: " << u1.getCost() << std::endl;
-            std::cout << std::endl;
-
-            std::cout << "Details are as follows" << std::endl;
-            u1.display();
-            // Confirm whether to pay
-            std::cout << "Do you want to confirm the shipment? (y/n): ";
-            std::cin >> confirm;
-            if (confirm == 'y' || confirm == 'Y')
-            {
-                std::cout << "Shipment confirmed. Please proceed to payment." << std::endl;
-                std::cout << "Payment successful. Thank you!" << std::endl;
-            }
-            else
-            {
-                std::cout << "Shipment not confirmed." << std::endl;
-            }
-
-            // Use again or exit
-            std::cout << "Do you want to Do you want to quit? (n/N): " << std::endl;
-            std::cin >> confirm;
-            if (confirm == 'n' || confirm == 'N')
-            {
-                std::cout << "Thank you for your use !" << std::endl;
-                break;
-            }
-        }
     }
 };
+
+class PackageInfo
+{
+  protected:
+    Dimension m_dimension;
+    long double m_weight;
+    long double m_quantity;
+
+  public:
+    PackageInfo() = default;
+    PackageInfo(long double l, long double w, long double h, long double wt, long double q)
+    {
+        setLength(l);
+        setWidth(w);
+        setHeight(h);
+        setWeight(wt);
+        setQuantity(q);
+    }
+
+    long double getLength() const
+    {
+        return m_dimension.length;
+    }
+
+    void setLength(long double l)
+    {
+        if (l >= 1 && l <= 120)
+            m_dimension.length = l;
+        else
+            std::cout << "Error! Please enter a length up to 120 cm" << std::endl;
+    }
+
+    long double getWidth() const
+    {
+        return m_dimension.width;
+    }
+
+    void setWidth(long double w)
+    {
+        if (w >= 1 && w <= 80)
+            m_dimension.width = w;
+        else
+            std::cout << "Error! Please enter a width up to 80 cm" << std::endl;
+    }
+
+    long double getHeight() const
+    {
+        return m_dimension.height;
+    }
+
+    void setHeight(long double h)
+    {
+        if (h >= 1 && h <= 80)
+            m_dimension.height = h;
+        else
+            std::cout << "Error! Please enter a height up to 80 cm" << std::endl;
+    }
+
+    long double getWeight() const
+    {
+        return m_weight;
+    }
+
+    void setWeight(long double wt)
+    {
+        if (wt >= 1 && wt <= 2500)
+            m_weight = wt;
+        else
+            std::cout << "Error! Please enter a weight up to 2500 kg" << std::endl;
+    }
+
+    long double getQuantity() const
+    {
+        return m_quantity;
+    }
+
+    void setQuantity(long double q)
+    {
+        if (q >= 1 && q <= 100)
+            m_quantity = q;
+        else
+            std::cout << "Error! Please enter a quantity up to 100 items" << std::endl;
+    }
+    void display()
+    {
+        std::cout << "Weight:" << m_weight << std::endl;
+        std::cout << "length: " << m_dimension.length << std::endl;
+        std::cout << "Width: " << m_dimension.width << std::endl;
+        std::cout << "Height " << m_dimension.height << std::endl;
+        std::cout << "Quantity " << m_quantity << std::endl;
+    }
+};
+
+class ShipmentInfo
+{
+  protected:
+    UserInfo m_user;
+    PostalAddress m_origin;
+    PostalAddress m_destination;
+    PackageInfo m_package;
+    UserInfo m_consignee;
+    std::string m_shipment_id;
+    std::string m_shipment_date;
+    Freight const *m_service_type;
+    long double m_cost;
+
+    static Freight const *service_type_to_freight(string const &service_type)
+    {
+        if (service_type == "Air transport")
+        {
+            return &air_freight;
+        }
+        if (service_type == "Ocean transport")
+        {
+            return &ocean_freight;
+        }
+        if (service_type == "Rail transport")
+        {
+            return &rail_freight;
+        }
+        throw runtime_error("Invalid service type");
+    }
+
+  public:
+    ShipmentInfo() = default;
+    ShipmentInfo(const PostalAddress &origin, const PostalAddress &destination, const PackageInfo &package,
+                 const UserInfo &user, const UserInfo &consignee, const std::string &shipment_id,
+                 const std::string &shipment_date, const std::string &service_type)
+        : m_user(user), m_origin(origin), m_destination(destination), m_package(package), m_consignee(consignee),
+          m_shipment_id(shipment_id), m_shipment_date(shipment_date),
+          m_service_type(service_type_to_freight(service_type)), m_cost(0.0)
+    {
+    }
+
+    // Getters
+    PostalAddress getOrigin() const
+    {
+        return m_origin;
+    }
+    PostalAddress getDestination() const
+    {
+        return m_destination;
+    }
+    PackageInfo getPackage() const
+    {
+        return m_package;
+    }
+    UserInfo getUser() const
+    {
+        return m_user;
+    }
+    UserInfo getconsignee() const
+    {
+        return m_consignee;
+    }
+    string getShipmentId() const
+    {
+        return m_shipment_id;
+    }
+    string getShipmentDate() const
+    {
+        return m_shipment_date;
+    }
+    string getServiceType() const
+    {
+        return (string)(*m_service_type);
+    }
+    long double getCost() const
+    {
+        return m_cost;
+    }
+
+    // Setters
+    void setOrigin(const PostalAddress &o)
+    {
+        m_origin = o;
+    }
+    void setDestination(const PostalAddress &d)
+    {
+        m_destination = d;
+    }
+    void setPackage(const PackageInfo &p)
+    {
+        m_package = p;
+    }
+    void setconsignee(const UserInfo &s)
+    {
+        m_consignee = s;
+    }
+    void setShipmentId(const string &id)
+    {
+        m_shipment_id = id;
+    }
+    void setShipmentDate(const string &date)
+    {
+        m_shipment_date = date;
+    }
+    void setServiceType(const string &st)
+    {
+        m_service_type = service_type_to_freight(st);
+    }
+    void setCost(long double c)
+    {
+        m_cost = c;
+    }
+    void display()
+    {
+        std::cout << "Account" << std::endl;
+        m_user.display();
+        std::cout << std::endl;
+        std::cout << "Origin" << std::endl;
+        m_origin.display();
+        std::cout << std::endl;
+        std::cout << "Destination" << std::endl;
+        m_destination.display();
+        std::cout << std::endl;
+        std::cout << "consignee information" << std::endl;
+        m_consignee.display();
+        std::cout << std::endl;
+        std::cout << "Shipment information" << std::endl;
+        m_package.display();
+        std::cout << "Shipmentid: " << m_shipment_id << std::endl;
+        std::cout << "shipmentdate: " << m_shipment_date << std::endl;
+        std::cout << std::endl;
+        std::cout << " service type: " << m_service_type << std::endl;
+        std::cout << std::endl;
+        std::cout << "Cost: " << m_cost << std::endl;
+    }
+};
+
+void interface()
+{
+    std::cout << "********************* Ship now *********************" << std::endl;
+    std::cout << "*******1.Please enter your account******************" << std::endl;
+    std::cout << "****** 2.Enter your departure and destination ******" << std::endl;
+    std::cout << "****** 3.Enter your service type *******************" << std::endl;
+    std::cout << "****** 4.Describe your shipment ********************" << std::endl;
+    std::cout << "****** 5.Get shipping prices ***********************" << std::endl;
+
+    std::string usertype, username, useremail, usernumber, ocountry, opostalcode, olocation, consigneename,
+        consigneeemail, consigneenumber, dcountry, dpostalcode, dlocation, shipmentid, shipmentdate, servicetype;
+
+    char confirm;
+    int userChoice;
+    while (true)
+    {
+        std::cout << "Account" << std::endl;
+        std::cout << "I am shipping as a.... ( business | private person )" << std::endl;
+        std::cin >> usertype;
+        std::cout << "please enter your account:( name | email | phone number ) " << std::endl;
+        std::cin >> username;
+        std::cin >> useremail;
+        std::cin >> usernumber;
+        UserInfo user(username, useremail, usernumber);
+        std::cout << "Login successful!" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Origin and Destination" << std::endl;
+        std::cout << "Please enter your origin: ( country | postal code | location ) ";
+        std::cin >> ocountry;
+        std::cin >> opostalcode;
+        std::cin >> olocation;
+
+        PostalAddress origin(ocountry, opostalcode, olocation);
+        std::cout << "Please enter your destination: ( country | postal code | location ) ";
+        std::cin >> dcountry;
+        std::cin >> dpostalcode;
+        std::cin >> dlocation;
+        std::cout << "Please enter the consignee information: ( name | email | phone number )" << std::endl;
+        std::cin >> consigneename;
+        std::cin >> consigneeemail;
+        std::cin >> consigneenumber;
+        UserInfo consignee(consigneename, consigneeemail, consigneenumber);
+        PostalAddress destination(dcountry, dpostalcode, dlocation);
+        std::cout << std::endl;
+
+        std::cout << "ServiceType" << std::endl;
+        std::cout << "Please enter a number to select your shipping type: ( Sea transport(1) | Air transport(2) | "
+                     "Rail Freight(3)) ";
+
+        // Detect user input and convert numbers into text information
+        while (true)
+        {
+            cin >> type;
+            switch (type)
+            {
+            case 1:
+                servicetype = "Sea transport";
+                break;
+            case 2:
+                servicetype = "Air transport";
+                break;
+            case 3:
+                servicetype = "Rail transport";
+                break;
+            default:
+                cout << "Invalid input, please re-enter: ";
+                continue;
+            }
+            break;
+        }
+
+        ShipmentMode shipment;
+
+        shipment.selectShipmentMode();
+        std::cout << "Enter your choice (1, 2, or 3): ";
+        std::cin >> userChoice;
+        shipment = ShipmentMode(userType, userChoice);
+
+        shipment.setShipmentMode();
+        shipment.display();
+
+        long double length, width, height, weight, cost, quantity;
+
+        std::cout << "Package Description" << std::endl;
+        std::cout << "Please enter your shipmentid" << std::endl;
+        std::cin >> shipmentid;
+        std::cout << "Please enter your shipmentdate" << std::endl;
+        std::cin >> shipmentdate;
+        std::cout << "Please enter your weight(kg): " << std::endl;
+        std::cin >> weight;
+        std::cout << "Please enter your length(cm): " << std::endl;
+        std::cin >> length;
+        std::cout << "Please enter your width(cm): " << std::endl;
+        std::cin >> width;
+        std::cout << "Please enter your height(cm): " << std::endl;
+        std::cin >> height;
+        std::cout << "Please enter your quantity: " << std::endl;
+        std::cin >> quantity;
+        PackageInfo package(length, width, height, weight, quantity);
+
+        std::string origin, destination, package, user, consignee;
+
+        ShipmentInfo info(origin, destination, package, user, consignee, shipmentid, shipmentdate, servicetype);
+        std::cout << std::endl;
+
+        // need calculate Fees
+
+        cost = 0.0;
+        u1.setCost(cost);
+        std::cout << "The shipping fee is: " << u1.getCost() << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Details are as follows" << std::endl;
+        u1.display();
+        // Confirm whether to pay
+        std::cout << "Do you want to confirm the shipment? (y/n): ";
+        std::cin >> confirm;
+        if (confirm == 'y' || confirm == 'Y')
+        {
+            std::cout << "Shipment confirmed. Please proceed to payment." << std::endl;
+            std::cout << "Payment successful. Thank you!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Shipment not confirmed." << std::endl;
+        }
+
+        // Use again or exit
+        std::cout << "Do you want to Do you want to quit? (n/N): " << std::endl;
+        std::cin >> confirm;
+        if (confirm == 'n' || confirm == 'N')
+        {
+            std::cout << "Thank you for your use !" << std::endl;
+            break;
+        }
+    }
+}
 } // namespace mail
 
 // namespace mail
