@@ -150,6 +150,7 @@ public:
     typedef unsigned int DistanceType;
 protected:
     static map<RouteType, DistanceType> distance_map_init();
+    static const string distance_map_filename;
     static map<RouteType, DistanceType> const distance_map;
 public:
     bool exists(RouteType const& route) const
@@ -165,7 +166,7 @@ map<RouteToDistance::RouteType, RouteToDistance::DistanceType>
 RouteToDistance::distance_map_init()
 {
     map<RouteToDistance::RouteType, RouteToDistance::DistanceType> distance_map;
-    ifstream distance_map_stream("distance.csv");
+    ifstream distance_map_stream(distance_map_filename);
     if (!distance_map_stream)
         throw runtime_error("Failed to open distance map file");
 
@@ -191,7 +192,8 @@ RouteToDistance::distance_map_init()
     return distance_map;
 }
 
-map<RouteToDistance::RouteType, RouteToDistance::DistanceType> const RouteToDistance::distance_map = RouteToDistance::distance_map_init();
+const string RouteToDistance::distance_map_filename = "distance_map.csv";
+const map<RouteToDistance::RouteType, RouteToDistance::DistanceType> RouteToDistance::distance_map = RouteToDistance::distance_map_init();
 
 class Centimeter
 {
@@ -227,9 +229,7 @@ public:
 
     virtual double volumetric_weight(Centimeter l, Centimeter w, Centimeter h, unsigned int packages) const override
     { return l * w * h / 6000.0 * packages; }
-};
-
-const AirFreight air_freight;
+} const air_freight;
 
 class OceanFreight: public Freight
 {
@@ -238,9 +238,7 @@ public:
 
     virtual double volumetric_weight(Centimeter l, Centimeter w, Centimeter h, unsigned int packages) const override
     { return l * w * h / 1000.0 * packages; }
-};
-
-const OceanFreight ocean_freight;
+} const ocean_freight;
 
 class RailFreight: public Freight
 {
@@ -249,9 +247,7 @@ public:
 
     virtual double volumetric_weight(Centimeter l, Centimeter w, Centimeter h, unsigned int packages) const override
     { return l * w * h / 3000.0 * packages; }
-};
-
-const RailFreight rail_freight;
+} const rail_freight;
 
 // Corresponding to the CSV file format
 class PostalAddress
